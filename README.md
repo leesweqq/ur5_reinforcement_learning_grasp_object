@@ -81,7 +81,7 @@ Below is a comparison of the training reward progress for each algorithm. SAC sh
 To run the project, install the following dependencies:
 
 ```bash
-pip install gymnasium
+pip install stable-baselines3
 pip install pybullet
 pip install numpy
 pip install matplotlib
