@@ -110,7 +110,7 @@ def plot_reward_data():
         # Calculate the cumulative timestep
         data['timestep'] = np.cumsum(data['l'])  # Accumulate the timestep, as global timestep
 
-        data['timestep'] -= data['timestep'].iloc[0]  # 這一行是關鍵
+        data['timestep'] -= data['timestep'].iloc[0]  
         
         # Apply smoothing to the reward data
         smoothed_rewards = smooth(data['r'])
