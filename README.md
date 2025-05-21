@@ -95,7 +95,7 @@ pip install matplotlib
 ### ✅ Train the Model
 
 ```bash
-# Uncomment train_algo() in the main() function in main.py to start training
+# Uncomment train_algo() in the main() function in main_rl.py to start training
 python main_rl.py
 During training, the model will be automatically saved to ./models/, and logs will be recorded in ./logs/.
 ```
