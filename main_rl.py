@@ -16,7 +16,7 @@ def train_algo():
         os.makedirs(log_dir)  # Create the directory if it doesn't exist
 
     # Wrap the environment with the Monitor to record the results
-    env = UR5RobotiqEnv(test=False)  # Instantiate the custom driving environment
+    env = UR5RobotiqEnv()  # Instantiate the custom driving environment
     env = Monitor(env, log_dir)  # Monitor the environment and store logs in the specified directory
 
     # Predefine the algorithm to use (PPO, SAC, or A2C)
@@ -33,7 +33,7 @@ def train_algo():
     # Set up a checkpoint callback to save models periodically
     checkpoint_callback = CheckpointCallback(save_freq=1000, save_path="./models", name_prefix=f"ur_robot_{algo_name.lower()}")
 
-    # Train the model for a total of 500,000 timesteps and save checkpoints
+    # Train the model for a total of 10000 timesteps and save checkpoints
     model.learn(total_timesteps=10000, callback=checkpoint_callback)
 
     # Save the trained model
@@ -41,7 +41,7 @@ def train_algo():
 
 def test_algo():
     # Initialize the environment
-    env = UR5RobotiqEnv(test=True)  # Instantiate the custom driving environment
+    env = UR5RobotiqEnv()  # Instantiate the custom driving environment
     
     # Predefine the algorithm to use (PPO, SAC, or A2C)
     algo_name = "SAC"  # Set the algorithm to use (SAC, PPO, or A2C)
