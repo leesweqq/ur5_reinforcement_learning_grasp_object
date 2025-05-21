@@ -1,4 +1,5 @@
-from ur5_env import UR5RobotiqEnv
+from ur5_env_test import  UR5RobotiqEnvTest
+from ur5_env_train import UR5RobotiqEnvTrain
 import gymnasium as gym
 from stable_baselines3 import PPO, SAC,A2C
 from stable_baselines3.common.monitor import Monitor
@@ -16,7 +17,7 @@ def train_algo():
         os.makedirs(log_dir)  # Create the directory if it doesn't exist
 
     # Wrap the environment with the Monitor to record the results
-    env = UR5RobotiqEnv()  # Instantiate the custom driving environment
+    env = UR5RobotiqEnvTrain()  # Instantiate the custom driving environment
     env = Monitor(env, log_dir)  # Monitor the environment and store logs in the specified directory
 
     # Predefine the algorithm to use (PPO, SAC, or A2C)
@@ -41,7 +42,7 @@ def train_algo():
 
 def test_algo():
     # Initialize the environment
-    env = UR5RobotiqEnv()  # Instantiate the custom driving environment
+    env = UR5RobotiqEnvTest()  # Instantiate the custom driving environment
     
     # Predefine the algorithm to use (PPO, SAC, or A2C)
     algo_name = "SAC"  # Set the algorithm to use (SAC, PPO, or A2C)

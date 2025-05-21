@@ -13,16 +13,16 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <box size="0.08 0.04 0.05"/> <!-- 設定為長方體，大小為 0.1 x 0.05 x 0.2 -->
+        <box size="0.08 0.04 0.05"/> 
       </geometry>
       <material name="blue">
-        <color rgba="0 0 1 1"/> <!-- 設定為藍色 -->
+        <color rgba="0 0 1 1"/> 
       </material>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <box size="0.08 0.04 0.05"/> <!-- 碰撞體的大小與可視模型一致 -->
+        <box size="0.08 0.04 0.05"/>
       </geometry>
     </collision>
   </link>

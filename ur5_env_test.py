@@ -6,9 +6,9 @@ import numpy as np
 import time
 from collections import namedtuple
 import math
-class UR5RobotiqEnv(gym.Env):
+class UR5RobotiqEnvTest(gym.Env):
     def __init__(self):
-        super(UR5RobotiqEnv, self).__init__()
+        super(UR5RobotiqEnvTest, self).__init__()
 
         # Connect to PyBullet
         self.physics_client = p.connect(p.GUI)
@@ -103,12 +103,12 @@ class UR5RobotiqEnv(gym.Env):
         eef_state = p.getLinkState(self.robot.id, self.robot.eef_id)
         eef_position = eef_state[0]
         eef_orientation = eef_state[1]
-
         target_pos = np.array([action[0], action[1], 0.88]) 
         self.robot.move_arm_ik(target_pos, eef_orientation)
         # Simulate a few steps
         for _ in range(100):
             p.stepSimulation()
+            time.sleep(0.01)
 
         # Get current end-effector position (only x, y)
         eef_state = self.robot.get_current_ee_position()
@@ -122,17 +122,17 @@ class UR5RobotiqEnv(gym.Env):
             reward += max(0, (steps_taken * 1))  # Reward for fewer steps, the faster, the higher the reward
             
             print(f"Cube has picked. {self.target_pos[0], self.target_pos[1]} picked successfully, distance {distance_to_target}, reward: {reward}")
-            time.sleep(0.5)
+          
             target_pos = np.array([action[0], action[1], 0.8]) 
             self.robot.move_arm_ik(target_pos, eef_orientation)
             for _ in range(100):
                 p.stepSimulation()
                 time.sleep(0.01)
 
-            self.robot.move_gripper(0.001)  # Close the gripper
-            for _ in range(50):
+            self.robot.move_gripper(0.0002)  # Close the gripper
+            for _ in range(40):
                 p.stepSimulation()
-                time.sleep(0.05)
+                time.sleep(0.01)
 
             target_pos = np.array([action[0], action[1], 1])
             self.robot.move_arm_ik(target_pos, eef_orientation)
@@ -232,7 +232,11 @@ class UR5Robotiq85:
         """
         open_length = max(self.gripper_range[0], min(open_length, self.gripper_range[1]))
         open_angle = 0.715 - math.asin((open_length - 0.010) / 0.1143)
+        # Control the parent joint
         p.setJointMotorControl2(self.id, self.mimic_parent_id, p.POSITION_CONTROL, targetPosition=open_angle)
+
+    
+
 
     def move_arm_ik(self, target_pos, target_orn):
         joint_poses = p.calculateInverseKinematics(
@@ -257,7 +261,7 @@ class UR5Robotiq85:
             p.stepSimulation()
             time.sleep(0.01)
         robot.move_gripper(0.085)
-        for _ in range(100):
+        for _ in range(40):
             p.stepSimulation()
             time.sleep(0.01)
 

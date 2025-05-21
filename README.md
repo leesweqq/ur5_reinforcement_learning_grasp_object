@@ -96,7 +96,7 @@ pip install matplotlib
 
 ```bash
 # Uncomment train_algo() in the main() function in train_rl.py to start training
-python train_rl.py
+python main_rl.py
 During training, the model will be automatically saved to ./models/, and logs will be recorded in ./logs/.
 ```
 
@@ -104,7 +104,7 @@ During training, the model will be automatically saved to ./models/, and logs wi
 
 ```bash
 # test_algo() in train_rl.py is set by default to run the test
-python train_rl.py
+python main_rl.py
 Make sure that a trained model is available in the ./models/ directory, and modify the model name accordingly to load it.
 ```
 
