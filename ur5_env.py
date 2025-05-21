@@ -6,9 +6,9 @@ import numpy as np
 import time
 from collections import namedtuple
 import math
-class UR5RobotiqEnvTest(gym.Env):
-    def __init__(self):
-        super(UR5RobotiqEnvTest, self).__init__()
+class UR5RobotiqEnv(gym.Env):
+    def __init__(self,test=False):
+        super(UR5RobotiqEnv, self).__init__()
 
         # Connect to PyBullet
         self.physics_client = p.connect(p.GUI)
@@ -36,6 +36,8 @@ class UR5RobotiqEnvTest(gym.Env):
         # Set the maximum number of steps
         self.max_steps = 100
         self.current_step = 0
+        #train or test
+        self.test=test
 
     def draw_boundary(self,x_range, y_range, z_height):
         """
@@ -103,61 +105,111 @@ class UR5RobotiqEnvTest(gym.Env):
         eef_state = p.getLinkState(self.robot.id, self.robot.eef_id)
         eef_position = eef_state[0]
         eef_orientation = eef_state[1]
+
         target_pos = np.array([action[0], action[1], 0.88]) 
         self.robot.move_arm_ik(target_pos, eef_orientation)
-        # Simulate a few steps
-        for _ in range(100):
-            p.stepSimulation()
-            time.sleep(0.01)
+        #Test Phase
+        if self.test:
+            # Simulate a few steps
+            for _ in range(100):
+                p.stepSimulation()
+                time.sleep(0.01)
 
-        # Get current end-effector position (only x, y)
-        eef_state = self.robot.get_current_ee_position()
-        eef_position = np.array(eef_state[0])[:2]  # Only take x, y position
+            # Get current end-effector position (only x, y)
+            eef_state = self.robot.get_current_ee_position()
+            eef_position = np.array(eef_state[0])[:2]  # Only take x, y position
 
-        # Calculate reward (negative distance to target)
-        distance_to_target = abs(np.linalg.norm(eef_position - self.target_pos))
-        if distance_to_target<=0.01:
-            steps_taken = self.max_steps - self.current_step
-            reward = 100
-            reward += max(0, (steps_taken * 1))  # Reward for fewer steps, the faster, the higher the reward
+            # Calculate reward (negative distance to target)
+            distance_to_target = abs(np.linalg.norm(eef_position - self.target_pos))
+            if distance_to_target<=0.01:
+                steps_taken = self.max_steps - self.current_step
+                reward = 100
+                reward += max(0, (steps_taken * 1))  # Reward for fewer steps, the faster, the higher the reward
+                
+                print(f"Cube has picked. {self.target_pos[0], self.target_pos[1]} picked successfully, distance {distance_to_target}, reward: {reward}")
             
-            print(f"Cube has picked. {self.target_pos[0], self.target_pos[1]} picked successfully, distance {distance_to_target}, reward: {reward}")
-          
-            target_pos = np.array([action[0], action[1], 0.8]) 
-            self.robot.move_arm_ik(target_pos, eef_orientation)
-            for _ in range(100):
-                p.stepSimulation()
-                time.sleep(0.01)
+                target_pos = np.array([action[0], action[1], 0.8]) 
+                self.robot.move_arm_ik(target_pos, eef_orientation)
+                for _ in range(100):
+                    p.stepSimulation()
+                    time.sleep(0.01)
 
-            self.robot.move_gripper(0.0002)  # Close the gripper
-            for _ in range(40):
-                p.stepSimulation()
-                time.sleep(0.01)
+                self.robot.move_gripper(0.0002)  # Close the gripper
+                for _ in range(40):
+                    p.stepSimulation()
+                    time.sleep(0.01)
 
-            target_pos = np.array([action[0], action[1], 1])
-            self.robot.move_arm_ik(target_pos, eef_orientation)
-            for _ in range(100):
-                p.stepSimulation()
-                time.sleep(0.01)
+                target_pos = np.array([action[0], action[1], 1])
+                self.robot.move_arm_ik(target_pos, eef_orientation)
+                for _ in range(100):
+                    p.stepSimulation()
+                    time.sleep(0.01)
 
-            p.addUserDebugText(f"Success Pick",textColorRGB=[0, 0, 255], textPosition=[0.5, -1.1, 0.9],
-                            textSize=2, lifeTime=1)
-            time.sleep(0.5)
-            done = True
-        elif self.current_step >= self.max_steps:
-            # If maximum steps are reached, give a negative reward to penalize long episodes
-            reward=-10*(distance_to_target)  # Negative reward based on distance
-            done = True
+                p.addUserDebugText(f"Success Pick",textColorRGB=[0, 0, 255], textPosition=[0.5, -1.1, 0.9],
+                                textSize=2, lifeTime=1)
+                time.sleep(0.5)
+                done = True
+            elif self.current_step >= self.max_steps:
+                # If maximum steps are reached, give a negative reward to penalize long episodes
+                reward=-10*(distance_to_target)  # Negative reward based on distance
+                done = True
+            else:
+                # If the cube has moved more than 0.1 in either x or y, reset the environment
+                reward=-10*(distance_to_target)
+                done=False
+        #Train Phase
         else:
-            # If the cube has moved more than 0.1 in either x or y, reset the environment
-            reward=-10*(distance_to_target)
-            done=False
+            # Simulate a few steps
+            for _ in range(100):
+                p.stepSimulation()
+            # Get current end-effector position (only x, y)
+            eef_state = self.robot.get_current_ee_position()
+            eef_position = np.array(eef_state[0])[:2]  # Only take x, y position
+
+            # Calculate reward (negative distance to target)
+            distance_to_target = abs(np.linalg.norm(eef_position - self.target_pos))
+            if distance_to_target<=0.01:
+                steps_taken = self.max_steps - self.current_step
+                reward = 100
+                reward += max(0, (steps_taken * 1))  # Reward for fewer steps, the faster, the higher the reward
+                
+                print(f"Cube has picked. {self.target_pos[0], self.target_pos[1]} picked successfully, distance {distance_to_target}, reward: {reward}")
+                time.sleep(0.5)
+                target_pos = np.array([action[0], action[1], 0.8]) 
+                self.robot.move_arm_ik(target_pos, eef_orientation)
+            
+                for _ in range(100):
+                    p.stepSimulation()
+                    time.sleep(0.01)
+
+                self.robot.move_gripper(0.001)  # Close the gripper
+                for _ in range(50):
+                    p.stepSimulation()
+                    time.sleep(0.05)
+
+                target_pos = np.array([action[0], action[1], 1])
+                self.robot.move_arm_ik(target_pos, eef_orientation)
+                for _ in range(100):
+                    p.stepSimulation()
+                    time.sleep(0.01)
+
+                p.addUserDebugText(f"Success Pick",textColorRGB=[0, 0, 255], textPosition=[0.5, -1.1, 0.9],
+                                textSize=2, lifeTime=1)
+                time.sleep(0.5)
+                done = True
+            elif self.current_step >= self.max_steps:
+                # If maximum steps are reached, give a negative reward to penalize long episodes
+                reward=-10*(distance_to_target)  # Negative reward based on distance
+                done = True
+            else:
+                # If the cube has moved more than 0.1 in either x or y, reset the environment
+                reward=-10*(distance_to_target)
+                done=False
         print(f"reward:{reward}\n")
         print(f"Distance difference: {distance_to_target}")
         # After robot movement, check the cube position
         observation=self.target_pos
         truncated = False
-        
         info={}
         
         return observation, reward, done, truncated, info
@@ -232,11 +284,7 @@ class UR5Robotiq85:
         """
         open_length = max(self.gripper_range[0], min(open_length, self.gripper_range[1]))
         open_angle = 0.715 - math.asin((open_length - 0.010) / 0.1143)
-        # Control the parent joint
         p.setJointMotorControl2(self.id, self.mimic_parent_id, p.POSITION_CONTROL, targetPosition=open_angle)
-
-    
-
 
     def move_arm_ik(self, target_pos, target_orn):
         joint_poses = p.calculateInverseKinematics(
@@ -261,7 +309,7 @@ class UR5Robotiq85:
             p.stepSimulation()
             time.sleep(0.01)
         robot.move_gripper(0.085)
-        for _ in range(40):
+        for _ in range(100):
             p.stepSimulation()
             time.sleep(0.01)
 
