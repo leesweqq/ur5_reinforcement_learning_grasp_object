@@ -95,7 +95,7 @@ pip install matplotlib
 ### ✅ Train the Model
 
 ```bash
-# Uncomment train_algo() in the main() function in train_rl.py to start training
+# Uncomment train_algo() in the main() function in main.py to start training
 python main_rl.py
 During training, the model will be automatically saved to ./models/, and logs will be recorded in ./logs/.
 ```
@@ -103,17 +103,17 @@ During training, the model will be automatically saved to ./models/, and logs wi
 ### 🧪 Test the Model
 
 ```bash
-# test_algo() in train_rl.py is set by default to run the test
+# test_algo() in main_rl.py is set by default to run the test
 python main_rl.py
 Make sure that a trained model is available in the ./models/ directory, and modify the model name accordingly to load it.
 ```
 
 ### 📈 Additional Feature - Reward Graph Plotting
 
-The train_rl.py script provides the plot_reward_data() function to visualize reward changes:
+The main_rl.py script provides the plot_reward_data() function to visualize reward changes:
 
 ```python
-# Uncomment plot_reward_data() at the bottom of train_rl.py
+# Uncomment plot_reward_data() at the bottom of main_rl.py
 plot_reward_data()
 ```
 
