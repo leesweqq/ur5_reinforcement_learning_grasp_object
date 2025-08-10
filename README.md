@@ -6,7 +6,7 @@
   ![Before Training](./images/demo_before.gif)
 
 - **After Training (SAC - Success)**  
-  ![After Training](./images/demo_after.gif)
+  ![After Training](./images/demo_after_1.gif)
 
 
 ---
